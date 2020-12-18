@@ -1,6 +1,6 @@
 package controllers;
+
 import java.io.IOException;
-import java.sql.Timestamp;
 
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
@@ -11,22 +11,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import models.Task;
 import utils.DBUtill;
+
 /**
-* Servlet implementation class CreateServlet
+ * Servlet implementation class DestroyServlet
  */
-@WebServlet("/create")
-public class CreateServlet extends HttpServlet {
+@WebServlet("/destroy")
+public class DestroyServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public CreateServlet() {
+    public DestroyServlet() {
         super();
         // TODO Auto-generated constructor stub
     }
-
-
 
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
@@ -36,25 +35,17 @@ public class CreateServlet extends HttpServlet {
         if(_token != null && _token.equals(request.getSession().getId())) {
             EntityManager em = DBUtill.createEntityManager();
 
-            Task t= new Task();
 
-
-
-            String content = request.getParameter("content");
-            t.setContent(content);
-
-            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-            t.setCreated_at(currentTime);
-            t.setUpdated_at(currentTime);
+            Task t = em.find(Task.class, (Integer)(request.getSession().getAttribute("task_id")));
 
             em.getTransaction().begin();
-            em.persist(t);
+            em.remove(t);
             em.getTransaction().commit();
             em.close();
+
+            request.getSession().removeAttribute("message_id");
 
             response.sendRedirect(request.getContextPath() + "/index");
         }
     }
-    }
-
-
+}
